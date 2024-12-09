@@ -1,9 +1,11 @@
 Ao executar o programa na classe Main, você terá quatro opções disponíveis no console:
 
 Gerar o Scanner (1):
+PS(A classe scanner é gerada com o mesmo nome na primeira e na segunda opção, logo quando o arquivo scanner for enviado na unifor, ele sera o scanner)
 Esta opção gera a classe Scanner de forma isolada e realiza a análise léxica do arquivo entrada.txt. A entrada será exibida no console antes do início da execução.
 
-Gerar o Parser (2):
+Gerar o Parser (2): 
+PS(a classe de scanner gerada possui o mesmo nome do scanner feito na primeira opção, logo quando o arquivo scanner for enviado na unifor, ele sera o scanner(1))
 Esta opção gera tanto a classe Scanner quanto a classe Parser de forma isolada.
 A análise léxica não será exibida no console.
 A análise sintática será realizada, e a árvore sintática resultante do código presente no arquivo entrada.txt será exibida no console.

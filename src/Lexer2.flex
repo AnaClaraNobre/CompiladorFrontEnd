@@ -9,15 +9,12 @@ FimDeLinha         = \r|\n|\r\n
 CaractereEntrada   = [^\r\n]
 EspacoBranco       = {FimDeLinha} | [ \t\f]
 
+
+Inteiro            = [0-9]+
+Float              = {Inteiro}"."{Inteiro}?
+Tipo               = "float" | "int" | "bool"
 Identificador      = [a-zA-Z_][a-zA-Z0-9_]*
 
-Inteiro            = [0-9] | [1-9][0-9]*
-Float              = {Inteiro} "." [0-9]*
-
-ComentarioMulti    = "/*" [^*] ~"*/" | "/*" "*"+ "/"
-ComentarioSimp     = "//" {CaractereEntrada}* {FimDeLinha}?
-
-Tipo               = "float" | "int" | "bool"
 
 %%
 
@@ -58,9 +55,7 @@ Tipo               = "float" | "int" | "bool"
 "{"                 { return new Symbol(sym.ABRE_CHAVE, yytext()); }
 "}"                 { return new Symbol(sym.FECHA_CHAVE, yytext()); }
 
-{ComentarioSimp}    { /* Ignorar comentários de uma linha */ }
-{ComentarioMulti}   { /* Ignorar comentários de múltiplas linhas */ }
 
 {EspacoBranco}      { /* Ignorar espaços em branco */ }
 
-[^]                 { System.err.println("Caractere inválido: " + yytext()); }
+[^]                 { System.err.println("TOKEN NAO ESPECIFICO PARA ISSO: " + yytext()); }

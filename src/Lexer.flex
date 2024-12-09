@@ -5,9 +5,10 @@
 
 Espacos          = [ \t\f]+
 QuebraDeLinha    = \r|\n|\r\n
+
+Inteiro    = [0-9]+
+Float      = {Inteiro}"."{Inteiro}?
 Identificador    = [a-zA-Z_][a-zA-Z0-9_]*
-NumeroInteiro    = [0-9]+
-NumeroFloat      = {NumeroInteiro}"."{NumeroInteiro}?
 
 %%
 
@@ -21,8 +22,8 @@ NumeroFloat      = {NumeroInteiro}"."{NumeroInteiro}?
 "float"          { System.out.println("TIPO:      " + yytext()); }
 
 {Identificador}  { System.out.println("IDENTIFICADOR: " + yytext()); }
-{NumeroFloat}    { System.out.println("FLOAT:    " + yytext()); }
-{NumeroInteiro}  { System.out.println("INTEIRO:  " + yytext()); }
+{Float}    { System.out.println("FLOAT:    " + yytext()); }
+{Inteiro}  { System.out.println("INTEIRO:  " + yytext()); }
 
 "+"              { System.out.println("MAIS:      " + yytext()); }
 "-"              { System.out.println("MENOS:     " + yytext()); }
