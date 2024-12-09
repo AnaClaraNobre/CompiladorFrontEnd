@@ -1,11 +1,15 @@
+
+Link para o gitHub: https://github.com/AnaClaraNobre/CompiladorFrontEnd
+
 Ao executar o programa na classe Main, você terá quatro opções disponíveis no console:
+PS: caso queira clicar nas opções 1, 2 ou 3 de modo seguido, é melhor excluir os arquivos scanners e parsers existentes (os que foram gerados na opção anterior). 
+ex: clico na opção 1: gera as classes scanners
+quero clicar na opção 2, para isso eu tenho que apagar as classes que a opção 1 gerou e assim por diante. (perdão, não ficou mt boa essa parte kk)
 
 Gerar o Scanner (1):
-PS(A classe scanner é gerada com o mesmo nome na primeira e na segunda opção, logo quando o arquivo scanner for enviado na unifor, ele sera o scanner)
 Esta opção gera a classe Scanner de forma isolada e realiza a análise léxica do arquivo entrada.txt. A entrada será exibida no console antes do início da execução.
 
 Gerar o Parser (2): 
-PS(a classe de scanner gerada possui o mesmo nome do scanner feito na primeira opção, logo quando o arquivo scanner for enviado na unifor, ele sera o scanner(1))
 Esta opção gera tanto a classe Scanner quanto a classe Parser de forma isolada.
 A análise léxica não será exibida no console.
 A análise sintática será realizada, e a árvore sintática resultante do código presente no arquivo entrada.txt será exibida no console.
@@ -22,5 +26,4 @@ Sair do Programa (4):
 Encerra a execução do programa.
 
 OBS: Em todas as opções, o conteúdo do arquivo entrada.txt será exibido no console antes do início das análises.
-
 
