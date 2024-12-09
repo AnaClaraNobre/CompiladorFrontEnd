@@ -1,0 +1,116 @@
+import java_cup.runtime.*;
+
+parser code {:
+    scanner s;
+    int depth = 0;
+
+    parser(scanner s) { this.s = s; }
+
+    String formatNode(String label, String... children) {
+        if (label.equals("VAR_DECLAR") && children.length >= 2) {
+            return "VAR_DECLAR: " + children[0] + " " + children[1] +
+                (children.length > 3 ? " = " + children[3] : "");
+        } else if (label.equals("SE") && children.length >= 4) {
+            return "SE (" + children[1] + ") { " + children[3] + " }";
+        } else if (label.equals("SENAO") && children.length >= 1) {
+            return "SENAO { " + children[0] + " }";
+        } else if (label.equals("PARA") && children.length >= 5) {
+            return "PARA (" + children[1] + "; " + children[2] + "; " + children[3] + ") { " + children[4] + " }";
+        } else if (label.equals("ENQUANTO") && children.length >= 3) {
+            return "ENQUANTO (" + children[1] + ") { " + children[2] + " }";
+        }
+
+        StringBuilder result = new StringBuilder();
+        result.append(label).append("\n");
+        for (String child : children) {
+            result.append("|  ").append(child.replace("\n", "\n|  ")).append("\n");
+        }
+        return result.toString().replaceAll("\\s+$", "");
+    }
+
+    String narrateNode(String label, String... children) {
+        return NarrativeFormatter.narrate(label, children);
+    }
+:}
+
+scan with {: return s.next_token(); :};
+
+terminal String     SE, SENAO, ENQUANTO, PARA, RETORNO, TIPO, IDENTIFICADOR, INTEIRO, PONTO_FLUTUANTE;
+terminal String     MAIS, MENOS, MULTIPLICACAO, DIVISAO, MENOR, MAIOR, MENOR_IGUAL, MAIOR_IGUAL, ATRIBUICAO, IGUALDADE, DIFERENTE;
+terminal String     NEGACAO, ABRE_PARENTESE, FECHA_PARENTESE, PONTO_VIRGULA, VIRGULA, ABRE_CHAVE, FECHA_CHAVE;
+
+non terminal String        initial, program, func_declar, var_declar, expr, if, while, for, stmt;
+
+precedence left MENOR, MAIOR, MENOR_IGUAL, MAIOR_IGUAL, IGUALDADE, DIFERENTE, SENAO, PONTO_VIRGULA, ABRE_PARENTESE;
+precedence right ATRIBUICAO;
+precedence left MULTIPLICACAO, DIVISAO;
+precedence left MENOS;
+precedence right MAIS;
+
+start with initial;
+
+initial ::= program:p
+    {: 
+       String treeOutput = "================ TREE =================\n" +
+                            "ROOT\n|- " + p.replace("\n", "\n|  ") + 
+                            "\n======================================";
+        
+        System.out.println(treeOutput);
+
+        FileUtils.writeToFile("saida_arvore.txt", treeOutput);
+        
+        System.out.println("Árvore gerada salva em 'saida_arvore.txt'");
+    :};
+
+program ::= stmt:s program:p {: RESULT = formatNode("CODE", s, p); :}
+          | stmt:e {: RESULT = e; :}
+          ;
+
+stmt ::= ABRE_CHAVE:l stmt:s1 FECHA_CHAVE:r {: RESULT = formatNode("BLOCK", l, s1, r); :}
+       | func_declar:c                      {: RESULT = formatNode("FUNC_DECLAR", c); :}
+       | var_declar:c PONTO_VIRGULA:s       {: RESULT = formatNode("VAR_DECLAR", c, s); :}
+       | stmt:s1 PONTO_VIRGULA:s stmt:s2    {: RESULT = formatNode("STMT_LIST", s1, s2); :}
+       | expr:e PONTO_VIRGULA:s             {: RESULT = formatNode("EXPR", e, s); :}
+       | RETORNO expr:e PONTO_VIRGULA:s     {: RESULT = formatNode("RETORNO", e, s); :}
+       | if:e                               {: RESULT = formatNode("SE", e); :}
+       | for:e                              {: RESULT = formatNode("PARA", e); :}
+       | while:e                            {: RESULT = formatNode("ENQUANTO", e); :}
+       ;
+
+if ::= SE ABRE_PARENTESE expr:e FECHA_PARENTESE stmt:l
+    {: RESULT = formatNode("SE", e, "{ " + l + " }"); :}
+  | SE ABRE_PARENTESE expr:e FECHA_PARENTESE stmt:l SENAO stmt:l2
+    {: RESULT = formatNode("SE", e, "{ " + l + " } SENAO { " + l2 + " }"); :};
+
+while ::= ENQUANTO ABRE_PARENTESE expr:e FECHA_PARENTESE stmt:st
+    {: RESULT = formatNode("ENQUANTO", e, "{ " + st + " }"); :};
+
+for ::= PARA ABRE_PARENTESE expr:e FECHA_PARENTESE stmt:st
+    {: RESULT = formatNode("PARA", e, "{ " + st + " }"); :};
+
+func_declar ::= TIPO:t IDENTIFICADOR:i ABRE_PARENTESE:l FECHA_PARENTESE:r stmt:b  
+    {: RESULT = formatNode("FUNCTION", t, i, l, r, b); :};
+
+var_declar ::= TIPO:t IDENTIFICADOR:i
+    {: RESULT = formatNode("VAR_DECLAR", t, i); :}
+  | TIPO:t IDENTIFICADOR:i ATRIBUICAO:a expr:e
+    {: RESULT = formatNode("VAR_DECLAR", t, i, a, e); :};
+
+expr     ::= expr:e1 MAIS expr:e2                 {: RESULT = formatNode("MAIS", e1, e2); :}
+           | expr:e1 MENOS expr:e2                {: RESULT = formatNode("MENOS", e1, e2); :}
+           | expr:e1 MULTIPLICACAO expr:e2        {: RESULT = formatNode("MULTIPLICACAO", e1, e2); :}
+           | expr:e1 DIVISAO expr:e2              {: RESULT = formatNode("DIVISAO", e1, e2); :}
+           | expr:e1 MENOR expr:e2                {: RESULT = formatNode("MENOR", e1, e2); :}
+           | expr:e1 MAIOR expr:e2                {: RESULT = formatNode("MAIOR", e1, e2); :}
+           | expr:e1 MENOR_IGUAL expr:e2          {: RESULT = formatNode("MENOR_IGUAL", e1, e2); :}
+           | expr:e1 MAIOR_IGUAL expr:e2          {: RESULT = formatNode("MAIOR_IGUAL", e1, e2); :}
+           | expr:e1 IGUALDADE expr:e2            {: RESULT = formatNode("IGUALDADE", e1, e2); :}
+           | expr:e1 DIFERENTE expr:e2            {: RESULT = formatNode("DIFERENTE", e1, e2); :}
+           | IDENTIFICADOR:i ATRIBUICAO expr:e    {: RESULT = formatNode("ATRIBUICAO", i, e); :}
+           | NEGACAO expr:e                       {: RESULT = formatNode("NEGACAO", e); :}
+           | MENOS expr:e                         {: RESULT = formatNode("MENOS", e); :}
+           | ABRE_PARENTESE expr:e FECHA_PARENTESE {: RESULT = formatNode("PAREN", e); :}
+           | INTEIRO:n                            {: RESULT = formatNode("INTEIRO", n); :}
+           | PONTO_FLUTUANTE:n                    {: RESULT = formatNode("PONTO_FLUTUANTE", n); :}
+           | IDENTIFICADOR:i                      {: RESULT = formatNode("IDENTIFICADOR", i); :}
+           ;
